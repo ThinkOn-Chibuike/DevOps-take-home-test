@@ -1,0 +1,20 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: userMgt-restapi-cronjob
+spec:
+  schedule: "0 6 * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: user-api
+            image: bitnami/user-broker:latest
+            command: ["/bin/sh", "-c", "kubectl scale deployment userMgt-restapi --replicas=$(expr $(date +%H) / 2 + 1)"]
+          - name: shift-api
+            image: shiftbookd/shiftbookd-cron:latest
+            command: ["/bin/sh", "-c", "kubectl scale deployment userMgt-restapi --replicas=$(expr $(date +%H) / 2 + 1)"]
+          restartPolicy: OnFailure
+
+# This CronJob object runs a `kubectl` command once a day at 6:00am to set the number of replicas in the deployment based on the current time of day. 

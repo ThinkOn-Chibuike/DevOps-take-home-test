@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+  namespace: staging
+spec:
+  type: ExternalName
+  externalName: database-1.cphx9ck62o9t.us-east-1.rds.amazonaws.com
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+  namespace: staging
+spec:
+  type: ExternalName
+  externalName: ddatabase-2.cphx9ck62o9t.us-east-2.rds.amazonaws.com

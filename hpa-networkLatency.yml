@@ -1,0 +1,26 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: network-hpa-autoscale
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: userMgt-restapi
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Pods
+    pods:
+      metric:
+        name: network_latency
+        selector:
+          matchLabels:
+            app: userMgt-restapi
+      target:
+        type: Value
+        averageValue: 80ms
+# In this configuration, I've specified the metric property with a name and selector,
+# to select the network_latency metric from the Prometheus metrics server for pods with the app: userMgt-restapi label.
+# I've also specified the target property with a type of Value and an averageValue of 80ms,
+# which means that the HPA will scale the number of replicas of the deployment up or down to maintain an average network_latency value of 80 milliseconds per pod.

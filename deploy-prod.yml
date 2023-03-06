@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userMgt-restapi
+  namespace: production
+  labels:
+    app: userMgt-restapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: userMgt-restapi
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: userMgt-restapi
+    spec:
+      containers:
+        - name: user-api
+          image: bitnami/user-broker:latest
+          ports:
+            - containerPort: 8005
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "200Mi"
+            limits:
+              cpu: "800m"
+              memory: "400Mi"
+          env:
+            - name: DB_HOSTNAME
+              value: "postgresql"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USERNAME
+              value: "user_postgres"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: user_postgres-passwd
+                  key: mysql-passwd
+        - name: shift-api
+          image: shiftbookd/shiftbookd-cron:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "150Mi"
+            limits:
+              cpu: "900m"
+              memory: "400Mi"
+          env:
+            - name: DB_HOSTNAME
+              value: "mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              value: "admin2"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shift-mysql-passwd
+                  key: mysql-passwd-shift
